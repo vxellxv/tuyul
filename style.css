@@ -326,3 +326,7 @@ h3 { font-family: Georgia,"Times New Roman",serif; font-size: 20px; font-weight:
 .quote-refresh { width:34px; height:34px; flex:0 0 34px; border:1px solid var(--border); border-radius:9px; background:rgba(255,255,255,.03); color:var(--gold); font-size:18px; cursor:pointer; }
 .quote-refresh:hover { border-color:var(--gold); background:var(--gold-soft); }
 @media(max-width:520px) { .quote-strip { gap:9px; padding:11px; } .quote-main { min-width:105px; } .quote-main strong { font-size:21px; } .quote-meta small { font-size:7px; } }
+
+/* TUYUL V6 Market Data Engine */
+.market-list-footnote { line-height: 1.55; }
+.quote-status { letter-spacing: .06em; }

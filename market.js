@@ -13,6 +13,21 @@ const TUYUL_MARKETS = [
   { symbol: "EUR/JPY", name: "Euro / Japanese Yen", tv: "FX:EURJPY", type: "forex", digits: 3 },
   { symbol: "GBP/JPY", name: "British Pound / Japanese Yen", tv: "FX:GBPJPY", type: "forex", digits: 3 },
   { symbol: "EUR/GBP", name: "Euro / British Pound", tv: "FX:EURGBP", type: "forex", digits: 5 },
+  { symbol: "EUR/AUD", name: "Euro / Australian Dollar", tv: "FX:EURAUD", type: "forex", digits: 5 },
+  { symbol: "EUR/CAD", name: "Euro / Canadian Dollar", tv: "FX:EURCAD", type: "forex", digits: 5 },
+  { symbol: "EUR/CHF", name: "Euro / Swiss Franc", tv: "FX:EURCHF", type: "forex", digits: 5 },
+  { symbol: "EUR/NZD", name: "Euro / New Zealand Dollar", tv: "FX:EURNZD", type: "forex", digits: 5 },
+  { symbol: "GBP/AUD", name: "British Pound / Australian Dollar", tv: "FX:GBPAUD", type: "forex", digits: 5 },
+  { symbol: "GBP/CAD", name: "British Pound / Canadian Dollar", tv: "FX:GBPCAD", type: "forex", digits: 5 },
+  { symbol: "GBP/CHF", name: "British Pound / Swiss Franc", tv: "FX:GBPCHF", type: "forex", digits: 5 },
+  { symbol: "GBP/NZD", name: "British Pound / New Zealand Dollar", tv: "FX:GBPNZD", type: "forex", digits: 5 },
+  { symbol: "AUD/JPY", name: "Australian Dollar / Japanese Yen", tv: "FX:AUDJPY", type: "forex", digits: 3 },
+  { symbol: "AUD/CAD", name: "Australian Dollar / Canadian Dollar", tv: "FX:AUDCAD", type: "forex", digits: 5 },
+  { symbol: "AUD/NZD", name: "Australian Dollar / New Zealand Dollar", tv: "FX:AUDNZD", type: "forex", digits: 5 },
+  { symbol: "CAD/JPY", name: "Canadian Dollar / Japanese Yen", tv: "FX:CADJPY", type: "forex", digits: 3 },
+  { symbol: "CHF/JPY", name: "Swiss Franc / Japanese Yen", tv: "FX:CHFJPY", type: "forex", digits: 3 },
+  { symbol: "NZD/JPY", name: "New Zealand Dollar / Japanese Yen", tv: "FX:NZDJPY", type: "forex", digits: 3 },
+  { symbol: "NZD/CAD", name: "New Zealand Dollar / Canadian Dollar", tv: "FX:NZDCAD", type: "forex", digits: 5 },
   { symbol: "XAU/USD", name: "Gold / US Dollar", tv: "OANDA:XAUUSD", type: "metals", digits: 2 },
   { symbol: "XAG/USD", name: "Silver / US Dollar", tv: "OANDA:XAGUSD", type: "metals", digits: 3 },
   { symbol: "BTC/USD", name: "Bitcoin / US Dollar", tv: "BITSTAMP:BTCUSD", type: "crypto", digits: 2 },
@@ -126,7 +141,7 @@ function tuyulMarketPage() {
           <button class="${tuyulMarketCategory === "index" ? "active" : ""}" data-market-category="index">Index</button>
         </div>
         <div id="marketList" class="market-list">${tuyulMarketListMarkup()}</div>
-        <p class="market-list-footnote">Harga numerik belum ditampilkan di daftar karena belum ada API market milik aplikasi. Buka chart untuk melihat feed TradingView.</p>
+        <p class="market-list-footnote">Watchlist menampilkan chart TradingView. Harga numerik dari Twelve Data dimuat hanya untuk instrumen terpilih agar kuota Basic 800 credits/hari lebih hemat.</p>
       </div>
 
       <div class="market-chart-column">
@@ -212,7 +227,7 @@ async function tuyulLoadQuote() {
     const item = tuyulSelectedInstrument();
     const response = await fetch(`${base}/api/quote?symbol=${encodeURIComponent(item.symbol)}`, { signal: tuyulQuoteRequest.signal, cache: "no-store" });
     const data = await response.json();
-    if (!response.ok || !data.price) throw new Error(data.error || "Data harga tidak tersedia");
+    if (!response.ok || data.price === undefined || data.price === null || !Number.isFinite(Number(data.price))) throw new Error(data.error || "Data harga tidak tersedia");
     priceEl.textContent = tuyulFormatQuotePrice(data.price, item.digits);
     const change = Number(data.change);
     const pct = Number(data.percentChange);
@@ -222,8 +237,9 @@ async function tuyulLoadQuote() {
       changeEl.classList.toggle("positive", validChange && change > 0);
       changeEl.classList.toggle("negative", validChange && change < 0);
     }
-    statusEl.textContent = "DATA PROVIDER";
-    updatedEl.textContent = `Sumber: ${data.source || "Twelve Data"} · ${data.datetime || "Waktu provider tidak tersedia"}`;
+    const cacheState = response.headers.get("X-TUYUL-Cache") || data.cache || "MISS";
+    statusEl.textContent = cacheState === "HIT" ? "DATA TERSIMPAN · CACHE" : "DATA PROVIDER";
+    updatedEl.textContent = `Sumber: ${data.source || "Twelve Data"} · ${data.datetime || data.fetchedAt || "Waktu provider tidak tersedia"}`;
   } catch (error) {
     if (error.name === "AbortError") return;
     statusEl.textContent = "DATA GAGAL DIMUAT";
@@ -235,7 +251,11 @@ function tuyulStartQuotePolling() {
   if (tuyulQuoteTimer) clearInterval(tuyulQuoteTimer);
   tuyulLoadQuote();
   tuyulQuoteTimer = setInterval(() => {
-    if (document.getElementById("tuyulQuotePrice")) tuyulLoadQuote();
-    else { clearInterval(tuyulQuoteTimer); tuyulQuoteTimer = null; }
+    if (document.getElementById("tuyulQuotePrice")) {
+      if (!document.hidden) tuyulLoadQuote();
+    } else {
+      clearInterval(tuyulQuoteTimer);
+      tuyulQuoteTimer = null;
+    }
   }, 60000);
 }
