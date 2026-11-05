@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#080d18">
+  <meta name="description" content="TUYUL — Your personal Forex market intelligence assistant.">
+  <title>TUYUL — Market Intelligence</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#home" aria-label="TUYUL Beranda" data-page="home">
+      <div class="brand-icon">T</div>
+      <div class="brand-copy">
+        <h1>TUYUL<span>.</span></h1>
+        <small>MARKET INTELLIGENCE</small>
+      </div>
+    </a>
+    <div class="topbar-right">
+      <div class="connection"><span class="status-dot"></span><span>INTERFACE READY</span></div>
+      <button class="profile-button" type="button" aria-label="Profil">E</button>
+    </div>
+  </header>
+
+  <nav class="navigation" aria-label="Navigasi utama">
+    <button class="nav-item active" data-page="home" type="button"><span class="nav-icon">⌂</span><span>Beranda</span></button>
+    <button class="nav-item" data-page="market" type="button"><span class="nav-icon">⌁</span><span>Market</span></button>
+    <button class="nav-item" data-page="news" type="button"><span class="nav-icon">▤</span><span>News</span></button>
+    <button class="nav-item" data-page="ai" type="button"><span class="nav-icon">✧</span><span>AI Analyst</span></button>
+    <button class="nav-item" data-page="academy" type="button"><span class="nav-icon">▱</span><span>Edukasi</span></button>
+  </nav>
+
+  <main id="app" class="app-shell" aria-live="polite"></main>
+
+  <footer class="site-footer">TUYUL <span>•</span> YOUR PERSONAL MARKET ASSISTANT</footer>
+
+  <script src="config.js"></script>
+  <script src="beranda.js"></script>
+  <script src="market.js"></script>
+  <script src="news.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
